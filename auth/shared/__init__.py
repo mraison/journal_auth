@@ -1,0 +1,1 @@
+## This file is intended to be shared across all python packages within the journalApp project...I'm just not sure how to do that yet.

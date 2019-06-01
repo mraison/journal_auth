@@ -1,43 +1,18 @@
-from flask import Flask, abort
 # from flask_jwt import JWT, jwt_required, current_identity
 from werkzeug.security import safe_str_cmp
 from functools import wraps
 
 
 import os
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 from . import db
 
-from .modules import jwt
+from .shared.middleware.jwt import check_jwt
+from .shared.configs.serviceConsts import SECRET
+from .shared.utils import jwt
 
-
-JWT_SECRET = 'secret'
-
-#######################################################
-def check_jwt(key):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kws):
-            if not 'Authorization' in request.headers:
-                abort(401)
-
-            user = None
-            data = request.headers['Authorization'].encode('ascii', 'ignore')
-            decodedToken = None
-            token = str.replace(str(data), 'Bearer ', '')
-            ## I've gotta trim this fucking byte syntax stuff off....
-            token = str.replace(str(token), 'b\'', '')
-            token = str.replace(str(token), '\'', '')
-
-            if not jwt.validate(token, key):
-                abort(401)
-
-            body = jwt.extractData(token)
-
-            return f(body, *args, **kws)
-        return decorated_function
-    return decorator
+JWT_SECRET = SECRET
 
 # http://flask.pocoo.org/docs/1.0/tutorial/database/
 def create_app(test_config=None):
@@ -45,7 +20,7 @@ def create_app(test_config=None):
     app = Flask(__name__)
     app.config.from_mapping(
         # a default secret that should be overridden by instance config
-        SECRET_KEY='dev',
+        SECRET_KEY=JWT_SECRET,
         # store the database in the instance folder
         DATABASE=os.path.join(app.instance_path, '../../journal_proj/instance/records.sqlite'),
     )
@@ -90,7 +65,7 @@ def create_app(test_config=None):
             cursor = db.get_db().cursor()
 
             result = cursor.execute(
-                'SELECT 1 '
+                'SELECT ID '
                 'FROM users '
                 'WHERE username = ? AND password = ?',
                 (username, password,)
@@ -104,10 +79,13 @@ def create_app(test_config=None):
         if result is None:
             return jsonify({'error_detail': 'User not found'}), 404
 
+        ## should probably check if ID exists here just in case nothing is found...
+        id = dict(zip([key[0] for key in cursor.description], result))['ID']
+
         ### There ya go I made my own fuckin token...
         key = app.config['SECRET_KEY']
         body = {
-            'username': username,
+            'ID': id,
             'role': 'user'
         }
 
