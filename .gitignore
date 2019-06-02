@@ -2,4 +2,4 @@
 *.pyc
 instance
 venv3
-auth/shared
+auth/shared/
