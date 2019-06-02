@@ -22,7 +22,7 @@ def create_app(test_config=None):
         # a default secret that should be overridden by instance config
         SECRET_KEY=JWT_SECRET,
         # store the database in the instance folder
-        DATABASE=os.path.join(app.instance_path, '../../journal_proj/instance/records.sqlite'),
+        DATABASE=os.path.join(app.instance_path, '../../instance/records.sqlite'),
     )
     # app.debug = True
     # app.config['SECRET_KEY'] = 'super-secret'
@@ -90,7 +90,10 @@ def create_app(test_config=None):
         }
 
         token = jwt.encode(key, body, 'HS256')
-        return jsonify({'bearer_token': token}), 200
+        return jsonify({
+            'ID': id,
+            'bearer_token': token
+        }), 200
 
 
     @app.route('/user', methods=['POST'])
