@@ -16,3 +16,6 @@ CREATE TABLE users (
 
 INSERT INTO users(ID, username, password) VALUES (0, 'JohnDoe', 'pass');
 INSERT INTO users(ID, username, password) VALUES (1, 'MatthewRaison', 'ThisIsMyPassword');
+
+
+-- This isn't actually used anymore...
