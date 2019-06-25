@@ -22,7 +22,7 @@ def create_app(test_config=None):
         # a default secret that should be overridden by instance config
         SECRET_KEY=JWT_SECRET,
         # store the database in the instance folder
-        DATABASE=os.path.join(app.instance_path, '../../instance/records.sqlite'),
+        DATABASE=os.path.join('/Users/raisonm/proj/journalApp/instance/records.sqlite'),
     )
     # app.debug = True
     # app.config['SECRET_KEY'] = 'super-secret'
@@ -122,7 +122,18 @@ def create_app(test_config=None):
         except Exception as e:
             return jsonify({'error_detail': str(e)}), 400
 
-        data = {'ID': id}
+        ### There ya go I made my own fuckin token...
+        key = app.config['SECRET_KEY']
+        body = {
+            'ID': id,
+            'role': 'user'
+        }
+        token = jwt.encode(key, body, 'HS256')
+
+        data = {
+            'ID': id,
+            'bearer_token': token
+        }
         return jsonify(data), 200
 
     @app.route('/user', methods=['DELETE'])

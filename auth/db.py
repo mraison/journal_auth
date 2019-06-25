@@ -34,8 +34,8 @@ def init_db():
     """Clear existing data and create new tables."""
     db = get_db()
 
-    with current_app.open_resource('schema.sql') as f:
-        db.executescript(f.read().decode('utf8'))
+    # with current_app.open_resource('schema.sql') as f:
+    #     db.executescript(f.read().decode('utf8'))
 
 
 @click.command('init-db')
